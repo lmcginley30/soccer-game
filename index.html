@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Soccer Stadium</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <main class="game-box">
+    <h1>⚽ Mini Soccer Stadium</h1>
+
+    <p class="controls">
+      Move with <strong>WASD</strong> or <strong>Arrow Keys</strong>.
+      Beat the defender and goalkeeper!
+    </p>
+
+    <div class="menu">
+      <label for="difficulty">Difficulty:</label>
+
+      <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+
+      <button id="restartButton">Restart Game</button>
+      <button id="soundButton">🔊 Sound On</button>
+    </div>
+
+    <canvas id="gameCanvas" width="1200" height="780"></canvas>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
+style.css
+css
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: radial-gradient(circle at top, #304b78, #111a2c 72%);
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: min(1240px, 100%);
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 8px;
+}
+
+.controls {
+  margin: 0 0 12px;
+  color: #d8e7ff;
+}
+
+.menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+label {
+  font-weight: bold;
+}
+
+select,
+button {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 7px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+select {
+  background: white;
+  color: #172033;
+  cursor: pointer;
+}
+
+button {
+  background: #347ffc;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1765d8;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 5px solid white;
+  border-radius: 12px;
+  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.5);
+}
