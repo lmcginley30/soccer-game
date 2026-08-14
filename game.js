@@ -13,6 +13,7 @@ let audioContext;
 let score = 0;
 let timeLeft = 55;
 let gameOver = false;
+let gameResult = "";
 let message = "";
 let celebrationFrames = 0;
 let lastTime = 0;
@@ -79,7 +80,6 @@ const difficultySettings = {
     keeperRadius: 20,
     time: 70
   },
-
   medium: {
     keeperSpeed: 2.35,
     defenderSpeed: 2.05,
@@ -87,22 +87,21 @@ const difficultySettings = {
     keeperRadius: 24,
     time: 55
   },
-
   hard: {
     keeperSpeed: 3.65,
-    defenderSpeed: 3.0,
+    defenderSpeed: 3,
     reactionDelay: 4,
     keeperRadius: 28,
     time: 45
   }
 };
 
-function clamp(value, minimum, maximum) {
-  return Math.max(minimum, Math.min(maximum, value));
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
 }
 
 function createFans() {
-  const fanColors = [
+  const colors = [
     "#e63434",
     "#1b72e8",
     "#ffd027",
@@ -117,18 +116,18 @@ function createFans() {
       fans.push({
         x: 18 + col * 24 + Math.random() * 7,
         y: 30 + row * 23 + Math.random() * 4,
-        color: fanColors[Math.floor(Math.random() * fanColors.length)],
+        color: colors[Math.floor(Math.random() * colors.length)],
         bounceOffset: Math.random() * Math.PI * 2
       });
     }
   }
 }
 
-createFans();
-
 function initializeAudio() {
   if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    audioContext = new (
+      window.AudioContext || window.webkitAudioContext
+    )();
   }
 
   if (audioContext.state === "suspended") {
@@ -168,7 +167,7 @@ function playSaveSound() {
 }
 
 function playGoalSound() {
-  playTone(523, 0.13, "sine", 0.13, 0);
+  playTone(523, 0.13, "sine", 0.13);
   playTone(659, 0.13, "sine", 0.13, 0.12);
   playTone(784, 0.28, "sine", 0.16, 0.24);
 }
@@ -209,6 +208,7 @@ function resetGame() {
 
   score = 0;
   gameOver = false;
+  gameResult = "";
   message = "";
   celebrationFrames = 0;
   timerAccumulator = 0;
@@ -217,50 +217,11 @@ function resetGame() {
   resetPositions();
 }
 
-window.addEventListener("keydown", (event) => {
-  const key = event.key.toLowerCase();
-  keys[key] = true;
-
-  if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) {
-    event.preventDefault();
-  }
-
-  initializeAudio();
-
-  if (gameOver && key === "r") {
-    resetGame();
-  }
-});
-
-window.addEventListener("keyup", (event) => {
-  keys[event.key.toLowerCase()] = false;
-});
-
-restartButton.addEventListener("click", () => {
-  initializeAudio();
-  resetGame();
-});
-
-difficultySelect.addEventListener("change", resetGame);
-
-soundButton.addEventListener("click", () => {
-  soundEnabled = !soundEnabled;
-
-  soundButton.textContent = soundEnabled
-    ? "🔊 Sound On"
-    : "🔇 Sound Off";
-
-  if (soundEnabled) {
-    initializeAudio();
-    playTone(500, 0.08, "sine", 0.08);
-  }
-});
-
 function updatePlayer() {
-  if (keys["arrowup"] || keys["w"]) player.y -= player.speed;
-  if (keys["arrowdown"] || keys["s"]) player.y += player.speed;
-  if (keys["arrowleft"] || keys["a"]) player.x -= player.speed;
-  if (keys["arrowright"] || keys["d"]) player.x += player.speed;
+  if (keys.arrowup || keys.w) player.y -= player.speed;
+  if (keys.arrowdown || keys.s) player.y += player.speed;
+  if (keys.arrowleft || keys.a) player.x -= player.speed;
+  if (keys.arrowright || keys.d) player.x += player.speed;
 
   player.x = clamp(
     player.x,
@@ -316,7 +277,6 @@ function updateDefender() {
   }
 
   defender.x = clamp(defender.x, 650, 1010);
-
   defender.y = clamp(
     defender.y,
     field.top + defender.radius,
@@ -460,18 +420,18 @@ function checkGoal() {
 }
 
 function updateCelebration() {
-  if (celebrationFrames > 0) {
-    celebrationFrames--;
+  if (celebrationFrames <= 0) return;
 
-    if (celebrationFrames === 0) {
-      message = "";
-      resetPositions();
-    }
+  celebrationFrames--;
+
+  if (celebrationFrames === 0) {
+    message = "";
+    resetPositions();
   }
 }
 
 function updateTimer(deltaTime) {
-  if (celebrationFrames > 0) return;
+  if (celebrationFrames > 0 || gameOver) return;
 
   timerAccumulator += deltaTime;
 
@@ -482,7 +442,14 @@ function updateTimer(deltaTime) {
     if (timeLeft <= 0) {
       timeLeft = 0;
       gameOver = true;
-      message = `Final score: ${score}`;
+
+      if (score === 0) {
+        gameResult = "LOSE";
+        message = "YOU LOSE!";
+      } else {
+        gameResult = "WIN";
+        message = "TIME'S UP!";
+      }
     }
   }
 }
@@ -641,6 +608,7 @@ function drawGoalkeeper() {
     0,
     Math.PI * 2
   );
+
   ctx.fillStyle = goalkeeper.color;
   ctx.fill();
 
@@ -726,25 +694,30 @@ function drawHud() {
   }
 
   if (gameOver) {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.78)";
+    const lost = gameResult === "LOSE";
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = "white";
-    ctx.font = "bold 54px Arial";
+    ctx.fillStyle = lost ? "#ff4b4b" : "#ffdc25";
+    ctx.font = "bold 58px Arial";
     ctx.textAlign = "center";
-    ctx.fillText("FULL TIME!", canvas.width / 2, 350);
-
-    ctx.fillStyle = "#ffdc25";
-    ctx.font = "bold 36px Arial";
-    ctx.fillText(`Final score: ${score}`, canvas.width / 2, 415);
+    ctx.fillText(
+      lost ? "YOU LOSE!" : "TIME'S UP!",
+      canvas.width / 2,
+      330
+    );
 
     ctx.fillStyle = "white";
-    ctx.font = "21px Arial";
+    ctx.font = "bold 30px Arial";
     ctx.fillText(
-      "Press R or click Restart Game to play again",
+      lost ? "You needed at least one goal." : `Final score: ${score}`,
       canvas.width / 2,
-      470
+      390
     );
+
+    ctx.font = "21px Arial";
+    ctx.fillText("Click Restart to try again", canvas.width / 2, 450);
   }
 }
 
@@ -781,5 +754,47 @@ function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 }
 
+window.addEventListener("keydown", (event) => {
+  const key = event.key.toLowerCase();
+  keys[key] = true;
+
+  if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) {
+    event.preventDefault();
+  }
+
+  initializeAudio();
+
+  if (gameOver && key === "r") {
+    resetGame();
+  }
+});
+
+window.addEventListener("keyup", (event) => {
+  keys[event.key.toLowerCase()] = false;
+});
+
+restartButton.addEventListener("click", () => {
+  initializeAudio();
+  resetGame();
+});
+
+difficultySelect.addEventListener("change", resetGame);
+
+soundButton.addEventListener("click", () => {
+  soundEnabled = !soundEnabled;
+  soundButton.textContent = soundEnabled ? "🔊" : "🔇";
+
+  soundButton.setAttribute(
+    "aria-label",
+    soundEnabled ? "Turn sound off" : "Turn sound on"
+  );
+
+  if (soundEnabled) {
+    initializeAudio();
+    playTone(500, 0.08, "sine", 0.08);
+  }
+});
+
+createFans();
 resetGame();
 requestAnimationFrame(gameLoop);

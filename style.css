@@ -2,74 +2,126 @@
   box-sizing: border-box;
 }
 
+:root {
+  color-scheme: dark;
+}
+
 body {
-  margin: 0;
+  min-width: 320px;
   min-height: 100vh;
+  margin: 0;
+  padding: 24px;
   display: grid;
   place-items: center;
-  padding: 20px;
-  background: radial-gradient(circle at top, #304b78, #111a2c 72%);
-  color: white;
-  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top, #3c639b 0%, #1d3151 36%, #0c1423 82%);
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .game-box {
   width: min(1240px, 100%);
-  text-align: center;
+}
+
+.top-bar {
+  min-height: 76px;
+  margin-bottom: 14px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(13, 25, 45, 0.82);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.25);
 }
 
 h1 {
-  margin: 0 0 8px;
+  margin: 0;
+  font-size: clamp(22px, 3vw, 30px);
+  letter-spacing: 0.2px;
 }
 
-.controls {
-  margin: 0 0 12px;
-  color: #d8e7ff;
+.subtitle {
+  margin: 4px 0 0;
+  color: #bdd2f0;
+  font-size: 14px;
 }
 
-.menu {
+.game-settings {
   display: flex;
-  justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 9px;
 }
 
-label {
-  font-weight: bold;
+.game-settings label {
+  color: #d8e7ff;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 select,
 button {
-  padding: 10px 14px;
+  min-height: 38px;
   border: 0;
-  border-radius: 7px;
-  font-size: 15px;
-  font-weight: bold;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 700;
 }
 
 select {
-  background: white;
+  padding: 0 10px;
   color: #172033;
+  background: #ffffff;
   cursor: pointer;
 }
 
 button {
+  padding: 0 13px;
+  color: #ffffff;
   background: #347ffc;
-  color: white;
   cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 
 button:hover {
   background: #1765d8;
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+#soundButton {
+  width: 42px;
+  padding: 0;
+  font-size: 18px;
 }
 
 canvas {
   display: block;
   width: 100%;
   height: auto;
-  border: 5px solid white;
-  border-radius: 12px;
-  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.5);
+  border: 5px solid #ffffff;
+  border-radius: 14px;
+  background: #299b45;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 700px) {
+  body {
+    padding: 12px;
+  }
+
+  .top-bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .game-settings {
+    width: 100%;
+    flex-wrap: wrap;
+  }
 }
